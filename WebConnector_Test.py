@@ -1,4 +1,5 @@
 import subprocess
+import platform
 line = '**************************************'
 
 def clear():
@@ -22,7 +23,7 @@ def Menu():
     elif menuinp == 2:
         print("Connect/Disconnect")
     elif menuinp == 3:
-        print("Run Connection Test")
+        ConnTest()
     elif menuinp == 4:
         exit
     else :
@@ -31,10 +32,27 @@ def Menu():
 
 def Results():
     clear()
-    results = subprocess.run(["netsh", "wlan", "show", "network"], capture_output=True, text=True).stdout
-    ls = results.split("/n")
-    ssids = [k for k in ls if 'SSID' in k]
-    print(results)
+    #If statement for Windows OS to list all networks
+    if platform.system() == "Windows":
+        results = subprocess.run(["netsh", "wlan", "show", "network"], capture_output=True, text=True).stdout
+        ls = results.split("/n")
+        ssids = [k for k in ls if 'SSID' in k]
+        print(results)
+    
+    #If statement for MAC OS X to list all networks - NON TESTED
+    elif platform.system() == "Darwin":
+        print("You're Working on MAC OS X, PLEASE NOTE YOU WILL HAVE TO ENTER YOUR PASSWORD TO RUN MOST FUNCTIONS")
+        results = subprocess.run(["sudo", "ln", "-s" "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport", "airport", "-s"], capture_output=True, text=True).stdout
+        ls = results.split("/n")
+        ssids = [k for k in ls if 'SSID' in k]
+        print(results)
+
+    #If statement for Linux OS to list all networks - NON TESTED
+    elif platform.system() == "Linux":
+        results = subprocess.run(["sudo", "nmcli", "dev", "wifi"], capture_output=True, text=True).stdout
+        ls = results.split("/n")
+        ssids = [k for k in ls if 'SSID' in k]
+        print(results)
     print(line)
     print("Options")
     print("1:   Connect/Disconnect to a Network")
@@ -45,10 +63,15 @@ def Results():
     if resultinp == 1:
         print("Connect/Disconnect")
     elif resultinp == 2:
-        print("Run Connection Test")
+        ConnTest()
     elif resultinp == 3:
         Menu()
     elif resultinp == 4:
         exit
 
+def ConnTest():
+    print(line)
+    Conntest = subprocess.run(['ping', '-l', '500', '-n' , '5', "www.google.co.uk"], capture_output=True, text=True).stdout
+    print(Conntest)
+    print(line)
 Menu()
